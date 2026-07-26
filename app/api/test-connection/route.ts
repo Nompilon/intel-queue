@@ -1,16 +1,16 @@
-import { connectDB } from "@/lib/db";
-import { Branch } from "@/models";
+// app/api/test-connection/route.ts
+import { prisma } from "@/lib/prisma";
 
 export async function GET() {
-  await connectDB();
-
-  const testBranch = await Branch.create({
-    name: "Test Branch " + Date.now(),
-    address: "123 Test Street",
-    numberOfCounters: 3,
+  const testBranch = await prisma.branch.create({
+    data: {
+      name: `Test Branch ${Date.now()}`,
+      address: "123 Test Street",
+      city: "Testville",
+    },
   });
 
-  const allBranches = await Branch.find();
+  const allBranches = await prisma.branch.findMany();
 
   return Response.json({
     message: "Created and fetched successfully",

@@ -1,8 +1,8 @@
-import { connectDB } from "@/lib/db";
+import { prisma } from "@/lib/prisma";
 
 export async function GET() {
   try {
-    await connectDB();
+    await prisma.$queryRaw`SELECT 1`;
     return Response.json({ status: "ok", db: "connected" });
   } catch (error) {
     return Response.json(
