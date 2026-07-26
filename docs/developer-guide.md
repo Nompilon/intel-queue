@@ -3,8 +3,9 @@
 **Project:** Intel-Q – Intelligent Queue Management System  
 **Framework:** Next.js (App Router)  
 **Language:** TypeScript  
-**Database:** MongoDB + Mongoose  
+**Database:** PostgreSQL + Prisma  
 **Authentication:** Auth.js v5  
+**Styling:** Tailwind CSS + shadcn/ui  
 **Hosting:** Vercel
 
 ---
@@ -13,42 +14,69 @@
 
 Welcome to the Intel-Q development team!
 
-This guide explains how to set up your local development environment, follow the team's coding standards, use GitHub effectively, and contribute to the project. Following this guide helps ensure consistency, code quality, and smooth collaboration throughout the project.
+This guide explains how to set up the local development environment, follow the team's coding standards, use GitHub effectively, and contribute to the project.
+
+Following this guide helps ensure consistency, code quality, and smooth collaboration throughout the project.
 
 ---
 
 # Technology Stack
-
-| Technology | Purpose |
-|------------|---------|
+```
+_________________________________________________________
+| Technology               | Purpose                    |
+|--------------------------|----------------------------|
 | Next.js 15+ (App Router) | Full-stack React framework |
-| TypeScript | Type safety |
-| Tailwind CSS | Styling |
-| shadcn/ui | Reusable UI components |
-| MongoDB | Database |
-| Mongoose | ODM |
-| Auth.js v5 | Authentication |
-| Vercel | Deployment |
-| GitHub | Version Control |
-| GitHub Projects | Project Management |
-
+| TypeScript               | Type safety                |
+| Tailwind CSS             | Styling                    |
+| shadcn/ui                | Reusable UI components     |
+| PostgreSQL               | Relational database        |
+| Prisma                   | ORM and type-safe database | 
+|                          | access                     |
+| Auth.js v5               | Authentication             |
+| Vercel                   | Deployment                 |
+| GitHub                   | Version Control            |
+| GitHub Projects          | Project Management         |
+ _______________________________________________________
+```
 ---
 
 # Local Development Setup
 
+## Prerequisites
+
+Before starting development, install:
+
+- Node.js 20 or later
+- npm
+- Git
+- VS Code
+- Access to the Intel-Q GitHub repository
+- Access to the team's PostgreSQL database
+
+
+
 ## 1. Clone the Repository
 
+Clone the team's repository:
+
 ```bash
-git clone https://github.com/<organization>/intel-q.git
+git clone https://github.com/nrb2002/intel-q.git
+
 cd intel-q
 ```
 
----
-
 ## 2. Install Dependencies
+
+Install the project dependencies:
 
 ```bash
 npm install
+```
+
+If Prisma is not already installed, run:
+
+```bash
+npm install prisma @prisma/client
 ```
 
 ---
@@ -60,18 +88,50 @@ Create a `.env.local` file in the project root.
 Example:
 
 ```env
-MONGODB_URI=mongodb://localhost:27017/intel-q
+DATABASE_URL="postgresql://username:password@hostname:5432/intelq"
 
-AUTH_SECRET=your-secret-key
+AUTH_SECRET="your-secret-key"
 
+AUTH_URL="http://localhost:3000"
+```
+
+The exact `DATABASE_URL` will depend on the PostgreSQL provider selected by the team.
+
+> **Important:** Never commit `.env.local` to GitHub. Environment variables must remain private.
+
+Whenever a new environment variable is required, update `.env.example` without including actual secrets.
+
+Example:
+
+```env
+DATABASE_URL=
+AUTH_SECRET=
 AUTH_URL=http://localhost:3000
 ```
 
-> **Important:** Never commit `.env.local` to GitHub. Update `.env.example` whenever new environment variables are introduced.
+---
+
+## 4. Set Up the Database
+
+After configuring `DATABASE_URL`, run the Prisma migration:
+
+```bash
+npx prisma migrate dev
+```
+
+If the project contains existing migrations, Prisma will apply the required migrations to the local database.
+
+Generate the Prisma Client:
+
+```bash
+npx prisma generate
+```
 
 ---
 
-## 4. Start the Development Server
+## 5. Start the Development Server
+
+Run:
 
 ```bash
 npm run dev
@@ -79,7 +139,7 @@ npm run dev
 
 Visit:
 
-```
+```text
 http://localhost:3000
 ```
 
@@ -87,38 +147,578 @@ http://localhost:3000
 
 # Project Structure
 
+The project should follow a structure similar to:
+
 ```text
-src/
+intel-q/
+│
+├── .github/
+│   ├── workflows/
+│   │   └── ...
+│   └── ...
+│
+├── .specify/
+│   └── ...
 │
 ├── app/
+│   │
 │   ├── api/
+│   │   ├── auth/
+│   │   │   └── [...nextauth]/
+│   │   │       └── route.ts
+│   │   │
+│   │   ├── queues/
+│   │   │   ├── route.ts
+│   │   │   └── [id]/
+│   │   │       └── route.ts
+│   │   │
+│   │   ├── branches/
+│   │   │   ├── route.ts
+│   │   │   └── [id]/
+│   │   │       └── route.ts
+│   │   │
+│   │   └── users/
+│   │       └── me/
+│   │           └── route.ts
+│   │
 │   ├── dashboard/
+│   │   ├── layout.tsx
+│   │   ├── page.tsx
+│   │   │
+│   │   ├── queue/
+│   │   │   └── page.tsx
+│   │   │
+│   │   ├── branches/
+│   │   │   └── page.tsx
+│   │   │
+│   │   └── profile/
+│   │       └── page.tsx
+│   │
 │   ├── login/
+│   │   └── page.tsx
+│   │
 │   ├── register/
-│   └── layout.tsx
+│   │   └── page.tsx
+│   │
+│   ├── globals.css
+│   ├── layout.tsx
+│   └── page.tsx
 │
 ├── components/
+│   │
 │   ├── layout/
+│   │   ├── Header.tsx
+│   │   ├── Sidebar.tsx
+│   │   ├── Footer.tsx
+│   │   └── Navigation.tsx
+│   │
+│   ├── auth/
+│   │   ├── LoginForm.tsx
+│   │   ├── RegisterForm.tsx
+│   │   └── LogoutButton.tsx
+│   │
 │   ├── queue/
+│   │   ├── QueueList.tsx
+│   │   ├── QueueTicketCard.tsx
+│   │   ├── QueueForm.tsx
+│   │   └── QueueStatusBadge.tsx
+│   │
+│   ├── branch/
+│   │   ├── BranchList.tsx
+│   │   ├── BranchCard.tsx
+│   │   └── BranchForm.tsx
+│   │
 │   ├── ui/
+│   │   ├── Button.tsx
+│   │   ├── Input.tsx
+│   │   ├── Card.tsx
+│   │   ├── Badge.tsx
+│   │   ├── Dialog.tsx
+│   │   ├── LoadingSpinner.tsx
+│   │   └── Toast.tsx
+│   │
 │   └── shared/
+│       ├── EmptyState.tsx
+│       ├── ErrorMessage.tsx
+│       └── LoadingState.tsx
 │
 ├── lib/
-│   └── mongodb.ts
+│   ├── db.ts
+│   ├── auth.ts
+│   └── utils.ts
 │
 ├── models/
 │   ├── User.ts
-│   ├── Branch.ts
-│   └── QueueTicket.ts
+│   ├── QueueTicket.ts
+│   └── Branch.ts
 │
 ├── services/
+│   ├── queueService.ts
+│   ├── branchService.ts
+│   └── userService.ts
 │
 ├── hooks/
+│   └── ...
 │
 ├── types/
+│   ├── auth.ts
+│   ├── queue.ts
+│   ├── branch.ts
+│   └── user.ts
 │
-└── utils/
+├── utils/
+│   └── ...
+│
+├── public/
+│   └── ...
+│
+├── docs/
+│   ├── architecture.md
+│   ├── api-documentation.md
+│   ├── constitution.md
+│   ├── database-design.md
+│   ├── design-theme-branding.md
+│   ├── developer-guide.md
+│   ├── deployment-guide.md
+│   └── week-04-milestone.md
+│
+├── specs/
+│   └── ...
+│
+├── templates/
+│   └── ...
+│
+├── .env.example
+├── .env.local
+├── .gitignore
+├── .prettierrc
+├── AGENTS.md
+├── CLAUDE.md
+├── README.md
+├── board.md
+├── eslint.config.mjs
+├── next.config.ts
+├── package.json
+├── package-lock.json
+├── postcss.config.mjs
+├── spec-kit.yaml
+└── tsconfig.json
 ```
+
+---
+
+# Directory Responsibilities
+
+## `app/`
+
+The `app/` directory is the primary Next.js App Router directory.
+
+It contains:
+
+* Public pages
+* Authentication pages
+* Dashboard pages
+* Layouts
+* API Route Handlers
+* Global styles
+
+The current repository already uses this root-level `app/` structure, so the team should **not move it to `src/app/`** unless the entire project is intentionally reorganized.
+
+---
+
+## `app/api/`
+
+Contains Next.js Route Handlers that implement the server-side API.
+
+Example:
+
+```text
+app/api/queues/route.ts
+```
+
+Responsibilities include:
+
+* Handling HTTP requests
+* Validating request data
+* Checking authentication
+* Calling service functions
+* Reading and writing database records
+* Returning typed responses
+
+The API layer should not contain unnecessary UI logic.
+
+---
+
+## `app/dashboard/`
+
+Contains authenticated application views.
+
+The dashboard should provide different functionality depending on the authenticated user's role.
+
+Possible roles include:
+
+* Customer
+* Staff
+* Administrator
+
+The MVP should prioritize the customer and staff queue workflows before implementing advanced administrator features.
+
+---
+
+## `components/`
+
+Contains reusable React components.
+
+Components should be grouped by responsibility rather than placing every component in one large directory.
+
+For example:
+
+```text
+components/
+├── auth/
+├── branch/
+├── layout/
+├── queue/
+├── shared/
+└── ui/
+```
+
+Components should be reused across multiple pages whenever practical.
+
+---
+
+## `lib/`
+
+Contains shared infrastructure and configuration.
+
+Examples:
+
+```text
+lib/db.ts
+lib/auth.ts
+lib/utils.ts
+```
+
+Responsibilities include:
+
+* Database connection
+* Auth.js configuration
+* Shared utility functions
+* Common server-side helpers
+
+---
+
+## `models/`
+
+Contains database models and schemas.
+
+For the Intel-Q MVP, the core models are:
+
+```text
+models/
+├── User.ts
+├── QueueTicket.ts
+└── Branch.ts
+```
+
+The models should reflect the team's approved database design.
+
+Because the team has decided to use PostgreSQL, these should eventually be implemented using the selected PostgreSQL database access layer or ORM rather than Mongoose.
+
+---
+
+## `services/`
+
+Contains server-side business logic.
+
+Examples:
+
+```text
+services/
+├── queueService.ts
+├── branchService.ts
+└── userService.ts
+```
+
+Services should handle operations such as:
+
+* Creating queue tickets
+* Retrieving active queues
+* Updating ticket status
+* Removing queue tickets
+* Creating branches
+* Updating branches
+
+Keeping business logic in services helps prevent API Route Handlers from becoming too large.
+
+---
+
+## `types/`
+
+Contains shared TypeScript types.
+
+Examples:
+
+```text
+types/
+├── auth.ts
+├── queue.ts
+├── branch.ts
+└── user.ts
+```
+
+Shared types should be used for:
+
+* Component props
+* API request payloads
+* API responses
+* Database-related data
+* Authentication data
+
+Avoid using `any`.
+
+---
+
+## `hooks/`
+
+Contains custom React hooks.
+
+Hooks should only be created when reusable client-side behavior is needed.
+
+Examples might include:
+
+```text
+useQueue.ts
+useAuth.ts
+useToast.ts
+```
+
+Do not create a custom hook simply to wrap a single function unless it provides meaningful reuse or abstraction.
+
+---
+
+## `utils/`
+
+Contains general-purpose utility functions that do not belong specifically to database, authentication, or business logic.
+
+Examples include:
+
+* Formatting dates
+* Formatting ticket numbers
+* Validation helpers
+* Display formatting
+
+---
+
+## `docs/`
+
+Contains project documentation.
+
+The current repository already has a dedicated `docs/` directory. This is the appropriate location for the team's architectural and development documentation.
+
+Recommended documents include:
+
+```text
+docs/
+├── architecture.md
+├── api-documentation.md
+├── constitution.md
+├── database-design.md
+├── design-theme-branding.md
+├── developer-guide.md
+├── deployment-guide.md
+└── week-04-milestone.md
+```
+
+---
+
+## `specs/`
+
+Contains project specifications generated and maintained through the Spec-Kit workflow.
+
+The team should keep the formal feature specification here rather than mixing specification documents with application source code.
+
+---
+
+## `.specify/`
+
+Contains Spec-Kit configuration, templates, and supporting files.
+
+This directory is generated and maintained as part of the Spec-Kit workflow. Team members should avoid manually deleting or restructuring it unless they understand the impact on the Spec-Kit tooling.
+
+---
+
+## `public/`
+
+Contains static assets.
+
+Examples:
+
+```text
+public/
+├── images/
+├── icons/
+└── ...
+```
+
+Use this directory for assets that need to be publicly accessible.
+
+---
+
+# MVP Priority Structure
+
+Because the team has **five members** and a limited development timeline, the following areas should receive the highest priority:
+
+## Priority 1 – Application Foundation
+
+```text
+app/
+lib/
+types/
+```
+
+Establish:
+
+* Next.js App Router
+* Global layout
+* Environment configuration
+* Database connection
+* Authentication foundation
+
+## Priority 2 – Authentication
+
+```text
+app/login/
+app/register/
+components/auth/
+lib/auth.ts
+```
+
+Implement:
+
+* Registration
+* Login
+* Logout
+* Protected routes
+* Session handling
+
+## Priority 3 – Queue Management
+
+```text
+app/dashboard/queue/
+app/api/queues/
+components/queue/
+services/queueService.ts
+```
+
+Implement:
+
+* Create queue ticket
+* View active queue
+* Update queue status
+* Delete/cancel queue ticket
+
+## Priority 4 – Shared UI
+
+```text
+components/layout/
+components/ui/
+components/shared/
+```
+
+Implement reusable:
+
+* Header
+* Sidebar
+* Navigation
+* Buttons
+* Inputs
+* Cards
+* Status badges
+* Loading states
+* Error states
+* Empty states
+
+## Priority 5 – Branch Management
+
+```text
+app/dashboard/branches/
+app/api/branches/
+components/branch/
+services/branchService.ts
+```
+
+Implement branch CRUD after the core queue workflow is functional.
+
+---
+
+# Recommended Development Order
+
+The team should implement the project in approximately this order:
+
+```text
+1. Existing Next.js foundation
+        ↓
+2. Database configuration
+        ↓
+3. Core data models
+        ↓
+4. Authentication
+        ↓
+5. Shared design system
+        ↓
+6. Dashboard layout
+        ↓
+7. Queue API
+        ↓
+8. Queue UI
+        ↓
+9. Branch management
+        ↓
+10. Error and loading states
+        ↓
+11. Responsive design review
+        ↓
+12. Testing and code review
+        ↓
+13. Vercel deployment
+```
+
+This order ensures that the team establishes the technical foundation before building the main queue workflow.
+
+---
+
+# Important Repository Alignment Notes
+
+The following points are important for keeping the documentation synchronized with the actual GitHub repository:
+
+1. **Keep `app/` at the repository root.** The current project does not use `src/app/`.
+2. **Keep project documentation under `docs/`.**
+3. **Keep Spec-Kit files under `.specify/` and specification work under `specs/`.**
+4. **Do not create duplicate documentation folders.**
+5. **Do not introduce a second application root such as `src/` unless the team explicitly decides to migrate the project.**
+6. **Update this structure whenever a major architectural decision changes.**
+7. **Keep the README synchronized with the actual repository structure and setup instructions.**
+
+---
+
+# Definition of Done
+
+The project structure is considered established when:
+
+* The Next.js application runs successfully from the root-level `app/` directory.
+* Shared components are organized under `components/`.
+* Database infrastructure is organized under `lib/` and `models/` or the team's selected PostgreSQL data-access structure.
+* Authentication configuration is centralized.
+* Business logic is separated into services where appropriate.
+* Shared TypeScript types are organized under `types/`.
+* Project documentation is stored under `docs/`.
+* Spec-Kit files remain organized under `.specify/` and `specs/`.
+* Team members understand where new files should be created.
+* No duplicate or conflicting project structures exist.
+* The structure supports the Intel-Q MVP without unnecessary complexity.
+
+
 
 ---
 
@@ -126,25 +726,24 @@ src/
 
 ## Create a Feature Branch
 
-Always branch from `main`.
+Always create a feature branch from the latest `main` branch with the name of the feature and the team-member who submitted it.
 
 ```bash
 git checkout main
-git pull
+git pull origin main
 
-git checkout -b feature/queue-api
+git checkout -b feature/team-member
 ```
 
 Examples:
 
+```text
+authentication/Sunday
+database/Nompilo
+developer-guide/Baron
 ```
-feature/authentication
-feature/login-page
-feature/navbar
-feature/database
-bug/login-error
-docs/update-readme
-```
+
+Use one branch for one logical feature or issue whenever practical.
 
 ---
 
@@ -161,20 +760,32 @@ fix: resolve login redirect issue
 
 docs: update developer guide
 
-refactor: simplify database connection
+refactor: simplify Prisma database connection
 
 style: improve dashboard layout
+
+test: add queue API validation tests
 ```
+
+Keep commits focused and avoid combining unrelated changes.
 
 ---
 
 ## Push Your Branch
 
+Push your feature branch to GitHub:
+
 ```bash
-git push origin feature/queue-api
+git push origin developer-guide/Baron
 ```
 
-Open a Pull Request and request a review before merging.
+Open a Pull Request and reference the related GitHub issue.
+
+Example:
+
+```text
+Closes #6
+```
 
 ---
 
@@ -182,12 +793,15 @@ Open a Pull Request and request a review before merging.
 
 Before submitting a Pull Request:
 
-- Project builds successfully
-- No TypeScript errors
-- No ESLint errors
-- Responsive layout verified
-- Related GitHub issue referenced
-- Documentation updated (if needed)
+* [ ] Acceptance criteria have been completed.
+* [ ] Project builds successfully.
+* [ ] No TypeScript errors exist.
+* [ ] No ESLint errors exist.
+* [ ] Feature has been manually tested.
+* [ ] Responsive behavior has been verified.
+* [ ] Related GitHub issue is referenced.
+* [ ] Documentation has been updated if necessary.
+* [ ] No secrets or environment variables have been committed.
 
 At least one teammate should review and approve the Pull Request before merging.
 
@@ -197,17 +811,21 @@ At least one teammate should review and approve the Pull Request before merging.
 
 ## TypeScript
 
-- Enable strict mode.
-- Avoid using `any`.
-- Define interfaces for props, API responses, and data models.
-- Prefer explicit types.
+* Enable strict TypeScript mode.
+* Avoid using `any`.
+* Define interfaces or types for component props.
+* Define types for API request and response data.
+* Use Prisma-generated types where appropriate.
+* Prefer explicit and descriptive types.
+* Avoid unnecessary type assertions.
 
 Example:
 
 ```ts
 interface QueueTicket {
+  id: string;
   ticketNumber: number;
-  status: "Waiting" | "In Service" | "Completed";
+  status: "WAITING" | "IN_SERVICE" | "COMPLETED" | "CANCELLED";
 }
 ```
 
@@ -215,31 +833,37 @@ interface QueueTicket {
 
 ## React Components
 
-- Use functional components.
-- Prefer Server Components by default.
-- Use Client Components only when needed (state, events, browser APIs).
-- Keep components focused on a single responsibility.
+* Use functional components.
+* Prefer Server Components by default.
+* Use Client Components only when interactivity, browser APIs, or client-side state is required.
+* Keep components focused on a single responsibility.
+* Extract repeated UI patterns into reusable components.
+* Avoid unnecessarily large components.
 
 ---
 
 ## File Naming
 
-| Item | Convention |
-|------|------------|
-| React Components | PascalCase |
-| Hooks | camelCase (e.g., `useQueue.ts`) |
-| Utility files | camelCase |
-| Routes | kebab-case |
-| Models | PascalCase |
-| Interfaces | PascalCase |
+| Item              | Convention              |
+| ----------------- | ----------------------- |
+| React Components  | PascalCase              |
+| Hooks             | camelCase               |
+| Utility files     | camelCase or kebab-case |
+| Routes            | kebab-case              |
+| Prisma schema     | `schema.prisma`         |
+| Database client   | `prisma.ts`             |
+| Types             | PascalCase              |
+| API route folders | kebab-case              |
 
 Examples:
 
-```
+```text
 QueueCard.tsx
 Header.tsx
 useQueue.ts
 queue-utils.ts
+prisma.ts
+schema.prisma
 ```
 
 ---
@@ -248,55 +872,205 @@ queue-utils.ts
 
 ## app/
 
-Contains pages, layouts, and API route handlers.
+Contains:
+
+* Pages
+* Layouts
+* Loading states
+* Error states
+* API Route Handlers
+
+---
 
 ## components/
 
-Reusable UI and layout components.
+Contains reusable UI and layout components.
 
-## models/
+Examples:
 
-Mongoose schemas and models.
+```text
+Header
+Sidebar
+Footer
+QueueCard
+QueueStatusBadge
+LoadingSpinner
+EmptyState
+```
+
+---
 
 ## lib/
 
-Database connections and shared libraries.
+Contains shared infrastructure and configuration.
+
+Examples:
+
+```text
+prisma.ts
+auth.ts
+```
+
+---
+
+## prisma/
+
+Contains the Prisma database schema and migration-related files.
+
+Primary file:
+
+```text
+prisma/schema.prisma
+```
+
+---
 
 ## services/
 
-Business logic and server-side operations.
+Contains reusable server-side business logic and database operations when separating business logic from Route Handlers is appropriate.
+
+---
 
 ## hooks/
 
-Custom React hooks.
+Contains reusable React Client Hooks.
+
+Examples:
+
+```text
+useQueue.ts
+useAuth.ts
+```
+
+---
+
+## types/
+
+Contains shared TypeScript types that are reused across multiple parts of the application.
+
+---
 
 ## utils/
 
-General helper functions.
+Contains small reusable helper functions.
 
 ---
 
 # Database Guidelines
 
-Use Mongoose for all database access.
+Intel-Q uses **PostgreSQL** as its primary database and **Prisma** as the ORM.
 
-Avoid direct MongoDB driver usage.
+The core MVP data models are:
 
-Every model should include:
+* User
+* QueueTicket
+* Branch
 
-- Validation
-- Required fields
-- Timestamps
+The primary relationships are:
+
+```text
+User
+  │
+  │ 1
+  │
+  │ *
+QueueTicket
+  │
+  │ *
+  │
+  │ 1
+Branch
+```
+
+A user can have multiple queue tickets.
+
+A branch can have multiple queue tickets.
+
+Each queue ticket belongs to one customer and one branch.
+
+---
+
+## Prisma Guidelines
+
+Use Prisma for database access.
+
+Example:
+
+```ts
+const tickets = await prisma.queueTicket.findMany({
+  where: {
+    status: "WAITING",
+  },
+});
+```
+
+Database operations should remain on the server.
+
+Do not expose the Prisma Client directly to browser-side Client Components.
+
+Use:
+
+* Server Components
+* Route Handlers
+* Server Actions
+* Server-side service functions
+
+for database operations.
+
+---
+
+## Database Schema Changes
+
+When modifying `schema.prisma`, create a migration:
+
+```bash
+npx prisma migrate dev --name describe-your-change
+```
+
+Example:
+
+```bash
+npx prisma migrate dev --name add_queue_ticket_status
+```
+
+After modifying the schema, regenerate Prisma Client:
+
+```bash
+npx prisma generate
+```
+
+Commit the migration files to GitHub.
+
+Do not manually modify the production database without documenting the change.
 
 ---
 
 # Authentication
 
-Use Auth.js v5.
+Intel-Q uses **Auth.js v5** for authentication.
 
 Protected pages should verify authentication on the server.
 
-Never expose secrets or sensitive business logic to client components.
+Authentication and authorization logic should remain on the server whenever possible.
+
+Never expose:
+
+* Database credentials
+* Auth secrets
+* Password hashes
+* Private environment variables
+
+to Client Components or browser code.
+
+Role-based access should be enforced server-side.
+
+Example roles:
+
+```text
+CUSTOMER
+STAFF
+ADMIN
+```
 
 ---
 
@@ -304,46 +1078,104 @@ Never expose secrets or sensitive business logic to client components.
 
 Use:
 
-- Tailwind CSS
-- shadcn/ui
+* Tailwind CSS
+* shadcn/ui
+* The project's defined design theme
 
 Avoid custom CSS unless absolutely necessary.
 
-Maintain consistent spacing, typography, and colors based on the project's design theme.
+Maintain consistent:
+
+* Colors
+* Typography
+* Spacing
+* Borders
+* Shadows
+* Component styles
+
+Refer to:
+
+```text
+docs/design-theme-branding.md
+```
+
+for the project's approved visual design.
 
 ---
 
 # Responsive Design
 
-Support:
+Intel-Q must support:
 
-- Mobile
-- Tablet
-- Desktop
+* Mobile
+* Tablet
+* Desktop
 
 Use Tailwind responsive utilities:
 
-```html
+```text
 sm:
 md:
 lg:
 xl:
 ```
 
-Test layouts before merging.
+Test layouts at multiple screen sizes before submitting a Pull Request.
+
+Prioritize mobile usability for customer-facing queue interactions.
 
 ---
 
 # Error Handling
 
-Every form should provide:
+Every user-facing form should provide:
 
-- Validation feedback
-- Loading states
-- Error messages
-- Empty states
+* Input validation
+* Loading states
+* Success feedback
+* Error messages
+* Empty states
 
-API routes should return appropriate HTTP status codes.
+API Route Handlers should return appropriate HTTP status codes.
+
+Common examples:
+
+```text
+200 OK
+201 Created
+400 Bad Request
+401 Unauthorized
+403 Forbidden
+404 Not Found
+409 Conflict
+500 Internal Server Error
+```
+
+Errors should provide useful feedback without exposing sensitive implementation details.
+
+---
+
+# API Guidelines
+
+API Route Handlers should:
+
+1. Validate authentication when required.
+2. Validate incoming data.
+3. Perform database operations on the server.
+4. Return appropriate HTTP status codes.
+5. Return consistent response structures.
+6. Handle unexpected errors gracefully.
+
+Core API areas include:
+
+```text
+/api/auth
+/api/queues
+/api/branches
+/api/users
+```
+
+Refer to the project specification for the complete API design.
 
 ---
 
@@ -351,39 +1183,67 @@ API routes should return appropriate HTTP status codes.
 
 Before opening a Pull Request:
 
-- Verify application builds successfully.
-- Test your feature manually.
-- Confirm no console errors.
-- Verify responsive behavior.
-- Check authentication (if applicable).
+* [ ] Verify the application builds successfully.
+* [ ] Run the linter.
+* [ ] Test the feature manually.
+* [ ] Confirm no console errors.
+* [ ] Verify responsive behavior.
+* [ ] Test authentication if applicable.
+* [ ] Test database operations if applicable.
+* [ ] Test error and empty states.
+
+Run:
+
+```bash
+npm run lint
+```
+
+Run the production build:
+
+```bash
+npm run build
+```
+
+Critical workflows should receive automated tests whenever practical.
+
+High-priority flows include:
+
+* User registration
+* User authentication
+* Queue creation
+* Queue retrieval
+* Queue status updates
+* Queue deletion
+* Branch management
 
 ---
 
 # GitHub Project Workflow
 
-Move issues through these columns:
+Move issues through the following workflow:
 
-```
+```text
 Backlog
-
-↓
-
+   ↓
 Ready
-
-↓
-
+   ↓
 In Progress
-
-↓
-
+   ↓
 In Review
-
-↓
-
+   ↓
 Done
 ```
 
-Keep issue status up to date.
+Keep GitHub issue status updated as work progresses.
+
+Each issue should have:
+
+* Clear description
+* Acceptance criteria
+* Priority
+* Assigned owner
+* Appropriate labels
+* Related milestone when applicable
 
 ---
 
@@ -393,10 +1253,14 @@ Do not commit directly to `main`.
 
 Always:
 
-- Create a feature branch
-- Open a Pull Request
-- Receive at least one approval
-- Merge after review
+1. Create a feature branch.
+2. Implement the assigned issue.
+3. Test your changes.
+4. Push your branch.
+5. Open a Pull Request.
+6. Request a teammate review.
+7. Address review feedback.
+8. Merge after approval.
 
 ---
 
@@ -404,42 +1268,54 @@ Always:
 
 A task is considered complete when:
 
-- Acceptance criteria are met.
-- Code follows project standards.
-- Feature has been tested.
-- Documentation is updated (if applicable).
-- Pull Request has been reviewed and merged.
-- Related GitHub issue is closed.
+* [ ] Acceptance criteria are met.
+* [ ] Code follows project standards.
+* [ ] Feature has been tested.
+* [ ] Error and loading states are handled.
+* [ ] Responsive behavior has been verified.
+* [ ] Documentation is updated if applicable.
+* [ ] Pull Request has been reviewed.
+* [ ] Pull Request has been approved and merged.
+* [ ] Related GitHub issue is closed.
+* [ ] GitHub Project Board is updated.
 
 ---
 
 # Common Commands
 
-Install dependencies:
+## Install Dependencies
 
 ```bash
 npm install
 ```
 
-Run development server:
+---
+
+## Run Development Server
 
 ```bash
 npm run dev
 ```
 
-Run linter:
+---
+
+## Run Linter
 
 ```bash
 npm run lint
 ```
 
-Create production build:
+---
+
+## Create Production Build
 
 ```bash
 npm run build
 ```
 
-Start production server:
+---
+
+## Start Production Server
 
 ```bash
 npm run start
@@ -447,38 +1323,123 @@ npm run start
 
 ---
 
+## Run Prisma Migration
+
+```bash
+npx prisma migrate dev
+```
+
+---
+
+## Create a Named Prisma Migration
+
+```bash
+npx prisma migrate dev --name migration_name
+```
+
+---
+
+## Generate Prisma Client
+
+```bash
+npx prisma generate
+```
+
+---
+
+## Open Prisma Studio
+
+```bash
+npx prisma studio
+```
+
+---
+
 # Troubleshooting
 
-## MongoDB Connection Errors
+## PostgreSQL Connection Errors
 
-- Verify `MONGODB_URI` in `.env.local`.
-- Ensure MongoDB is running or your Atlas cluster is accessible.
+Check:
+
+* `DATABASE_URL` exists in `.env.local`.
+* Database credentials are correct.
+* PostgreSQL database is running.
+* Your IP address is allowed if using a hosted database.
+* The database provider is available.
+
+---
+
+## Prisma Errors
+
+Try:
+
+```bash
+npx prisma generate
+```
+
+If the database schema has changed:
+
+```bash
+npx prisma migrate dev
+```
+
+Check the Prisma schema:
+
+```text
+prisma/schema.prisma
+```
+
+---
 
 ## Authentication Issues
 
-- Check `AUTH_SECRET`.
-- Verify Auth.js configuration.
-- Confirm callback URLs match your environment.
+Check:
+
+* `AUTH_SECRET` is configured.
+* Auth.js configuration is correct.
+* Database access is working.
+* Callback and redirect behavior is correct.
+* Protected routes correctly check the user's session.
+
+---
 
 ## Build Errors
 
-- Run:
+Run:
 
 ```bash
 npm run lint
 ```
 
-- Resolve TypeScript errors.
-- Restart the development server after changing environment variables.
+Then:
+
+```bash
+npm run build
+```
+
+Resolve all TypeScript and ESLint errors before opening a Pull Request.
+
+If environment variables were changed, restart the development server:
+
+```bash
+npm run dev
+```
 
 ---
 
 # Team Communication
 
-- Keep GitHub issues updated.
-- Communicate blockers early.
-- Review teammates' Pull Requests promptly.
-- Document architectural decisions in the `docs/` directory.
+Team members should:
+
+* Keep GitHub issues updated.
+* Communicate blockers early.
+* Review teammates' Pull Requests promptly.
+* Ask questions when requirements are unclear.
+* Document significant architectural decisions.
+* Keep the GitHub Project Board current.
+* Communicate changes that affect authentication, database models, APIs, or shared components.
+
+Architectural decisions should be documented in the `docs/` directory.
 
 ---
 
@@ -486,18 +1447,34 @@ npm run lint
 
 Refer to the following project documents:
 
-- `README.md`
-- `docs/intel-q-spec.md`
-- `docs/constitution.md`
-- `docs/database-design.md`
-- `docs/design-theme-branding.md`
-- `docs/component-architecture.md`
-- `docs/week-04-milestone.md`
+* `README.md`
+* `specs/intel-q-spec.md`
+* `docs/architecture.md`
+* `docs/deployment-guide.md`
+* `docs/developer-guide.md`
+* `docs/database-design.md`
+* `docs/ui-theme--and-branding.md`
+* `docs/milestones/`
 
-These documents provide the project's technical standards, architecture, and implementation roadmap.
+These documents provide the project's technical standards, architecture, database design, visual design, and implementation roadmap.
 
 ---
 
 # Final Notes
 
-Intel-Q is being developed as a collaborative, production-style project. Write clean, maintainable code, communicate frequently with your teammates, and follow the agreed workflows. Prioritize simplicity, reliability, and consistency to deliver a successful MVP within the project timeline.
+Intel-Q is being developed as a collaborative, production-style application.
+
+The team should prioritize:
+
+* Simplicity
+* Reliability
+* Security
+* Accessibility
+* Maintainability
+* Consistent user experience
+
+With a limited development timeline, the team should focus on completing the MVP before implementing optional enhancements.
+
+All team members are responsible for maintaining code quality, communicating blockers, participating in code reviews, and keeping project documentation current.
+
+The goal is to deliver a stable and functional Intel-Q MVP that demonstrates effective full-stack development and professional team collaboration.
